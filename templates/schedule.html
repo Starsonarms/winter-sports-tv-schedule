@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}TV-schema - Vintersport{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Include the original styles */
+    .hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+    }
+    
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .chip input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+    
+    .chip:has(input:checked) {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+    }
+    
+    .event-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .event-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        color: #333;
+    }
+    
+    .event-channel {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .event-meta {
+        display: flex;
+        gap: 1.5rem;
+        color: #666;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .event-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    .site-footer {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        margin-top: 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="hero">
+    <div class="hero__inner">
+        <h1>❄️ Vintersport TV-guide</h1>
+        <p>Håll koll på vintersporter – datum, tider och kanaler.</p>
+    </div>
+</header>
+
+<main class="container">
+    <section class="controls">
+        <div class="filters">
+            <label class="chip">
+                <input type="checkbox" id="filterCrossCountry" data-sport="cross-country">
+                <span>⛷️ Längdskidor</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterBiathlon" data-sport="biathlon">
+                <span>🎯 Skidskytte</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterAlpine" data-sport="alpine">
+                <span>🎿 Alpint</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterSkiJumping" data-sport="ski-jumping">
+                <span>🪂 Backhoppning</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterIceHockey" data-sport="ice-hockey">
+                <span>🏒 Ishockey</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterFigureSkating" data-sport="figure-skating">
+                <span>⛸️ Konståkning</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterSpeedSkating" data-sport="speed-skating">
+                <span>⏱️ Skridsko</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterCurling" data-sport="curling">
+                <span>🥌 Curling</span>
+            </label>
+            <label class="chip">
+                <input type="checkbox" id="filterOther" data-sport="other">
+                <span>🏆 Övrigt</span>
+            </label>
+        </div>
+    </section>
+
+    <section id="schedule-container" class="schedule">
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Laddar...</span>
+            </div>
+            <p>Hämtar evenemang...</p>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <span>Uppdaterad automatiskt dagligen</span>
+    <br>
+    <a href="/settings" class="btn btn-sm btn-outline-primary mt-2">⚙️ Inställningar</a>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load events from MongoDB API
+let events = [];
+
+// Fetch events from API
+fetch('/api/events')
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            events = data.events;
+            console.log(`Loaded ${events.length} events from MongoDB`);
+            initializeFilters();
+            renderEvents();
+        } else {
+            document.getElementById('schedule-container').innerHTML = `
+                <div class="alert alert-warning">
+                    Kunde inte hämta evenemang. ${data.error || ''}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading events:', error);
+        document.getElementById('schedule-container').innerHTML = `
+            <div class="alert alert-danger">
+                Fel vid hämtning av evenemang: ${error}
+            </div>
+        `;
+    });
+
+// Sport filter mapping
+const sportFilters = {
+    'cross-country': 'filterCrossCountry',
+    'biathlon': 'filterBiathlon',
+    'alpine': 'filterAlpine',
+    'ski-jumping': 'filterSkiJumping',
+    'ice-hockey': 'filterIceHockey',
+    'figure-skating': 'filterFigureSkating',
+    'speed-skating': 'filterSpeedSkating',
+    'curling': 'filterCurling',
+    'other': 'filterOther'
+};
+
+function initializeFilters() {
+    // Get default sports from config
+    const defaultSports = {{ config.default_sports | tojson }};
+    
+    // Set initial state based on config
+    document.querySelectorAll('.filters input[type="checkbox"]').forEach(checkbox => {
+        const sport = checkbox.getAttribute('data-sport');
+        checkbox.checked = defaultSports.includes(sport);
+        
+        // Add event listener
+        checkbox.addEventListener('change', renderEvents);
+    });
+}
+
+function renderEvents() {
+    const container = document.getElementById('schedule-container');
+    
+    // Get active filters
+    const activeFilters = Array.from(document.querySelectorAll('.filters input[type="checkbox"]:checked'))
+        .map(cb => cb.id);
+    
+    // Filter events
+    const filteredEvents = events.filter(event => {
+        const filterName = sportFilters[event.sport];
+        return filterName && activeFilters.includes(filterName);
+    });
+    
+    // Render
+    if (filteredEvents.length === 0) {
+        container.innerHTML = `
+            <div class="alert alert-info">
+                Inga evenemang matchar de valda filtren.
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = filteredEvents.map(event => `
+        <div class="event-card">
+            <div class="event-header">
+                <h3 class="event-title">${event.title}</h3>
+                <span class="event-channel">${event.channel}</span>
+            </div>
+            <div class="event-meta">
+                <span>📅 ${formatDate(event.date)}</span>
+                <span>🕐 ${event.time}</span>
+                ${event.competition ? `<span>🏆 ${event.competition}</span>` : ''}
+            </div>
+            ${event.description ? `<p style="margin-top: 0.5rem; color: #666;">${event.description}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const options = { weekday: 'short', day: 'numeric', month: 'short' };
+    return date.toLocaleDateString('sv-SE', options);
+}
+</script>
+{% endblock %}

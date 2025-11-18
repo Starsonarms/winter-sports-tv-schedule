@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--
+  🏔️ CONFIGURATION: Default Sport Filters
+  
+  To change which sports are selected by default:
+  1. Find the filter checkboxes below (search for "data-default")
+  2. Set data-default="true" for sports you want selected
+  3. Set data-default="false" for sports you want unselected
+  
+  Example:
+    <input type="checkbox" id="filterCrossCountry" data-default="true">
+    <input type="checkbox" id="filterIceHockey" data-default="false">
+-->
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintersport TV-guide | OS 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="hero">
+        <div class="hero__inner">
+            <h1>❄️ Vintersport TV-guide</h1>
+            <p>Håll koll på vintersporter – datum, tider och kanaler.</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="controls">
+            <div class="filters">
+                <!-- Set data-default="true" on filters you want checked by default -->
+                <label class="chip">
+                    <input type="checkbox" id="filterCrossCountry" data-default="true">
+                    <span>⛷️ Längdskidor</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterBiathlon" data-default="true">
+                    <span>🎯 Skidskytte</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterAlpine" data-default="false">
+                    <span>🎿 Alpint</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterSkiJumping" data-default="false">
+                    <span>🪂 Backhoppning</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterIceHockey" data-default="false">
+                    <span>🏒 Ishockey</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterFigureSkating" data-default="false">
+                    <span>⛸️ Konståkning</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterSpeedSkating" data-default="false">
+                    <span>⏱️ Skridsko</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterCurling" data-default="false">
+                    <span>🥌 Curling</span>
+                </label>
+                <label class="chip">
+                    <input type="checkbox" id="filterOther" data-default="false">
+                    <span>🏆 Övrigt</span>
+                </label>
+            </div>
+        </section>
+
+        <section id="schedule-container" class="schedule">
+            <!-- Schedule will be populated by JavaScript -->
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <span>Uppdaterad automatiskt dagligen</span>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

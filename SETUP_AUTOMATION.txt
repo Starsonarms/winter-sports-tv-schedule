@@ -1,0 +1,55 @@
+===============================================================================
+  WINTER SPORTS TV SCHEDULE - AUTOMATED UPDATE SETUP
+===============================================================================
+
+To set up automatic nightly updates (runs at 2:00 AM every night):
+
+EASY METHOD:
+------------
+1. Right-click on "setup_scheduled_task.ps1"
+2. Select "Run with PowerShell"
+3. When asked, type "Y" and press Enter to test it
+
+That's it! Your schedule will now update automatically every night.
+
+
+ALTERNATIVE - MANUAL SETUP:
+---------------------------
+1. Press Windows + R
+2. Type: taskschd.msc
+3. Press Enter
+4. Follow instructions in "AUTOMATION_SETUP.md"
+
+
+TESTING:
+--------
+To test if it works right now:
+  Double-click "update_events.bat"
+
+Check "update_log.txt" to see if it worked.
+
+
+VIEWING THE LOG:
+---------------
+Open PowerShell and type:
+  Get-Content update_log.txt -Tail 20
+
+
+WHAT IT DOES:
+-------------
+- Fetches latest cross-country skiing events from FIS
+- Fetches latest biathlon events from IBU  
+- Updates your webpage automatically
+- Logs everything to update_log.txt
+
+
+TROUBLESHOOTING:
+---------------
+If it doesn't work:
+1. Make sure Python is installed: python --version
+2. Check update_log.txt for error messages
+3. See AUTOMATION_SETUP.md for detailed help
+
+
+Questions? Check the full README.md
+===============================================================================

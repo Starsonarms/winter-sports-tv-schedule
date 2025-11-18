@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Winter Sports TV Schedule - Home{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>❄️ Vintersport TV-guide</h1>
+            <p class="lead">Påminnelser för vintersporter på svensk TV</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📺 TV-schema</h5>
+                    <p class="card-text">Se alla kommande vintersportevenemang</p>
+                    <a href="/schedule" class="btn btn-success btn-lg">Visa TV-schema</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">⚙️ Påminnelser</h5>
+                    <p class="card-text">Konfigurera påminnelser för dina favoritsporter</p>
+                    <a href="/settings" class="btn btn-primary btn-lg">Öppna Inställningar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    📱 Funktioner
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>🔔 Smarta Påminnelser</h6>
+                            <p>Få notiser innan eventet börjar (t.ex. 60 min och 15 min före)</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>⏰ Tidsrestriktioner</h6>
+                            <p>Inga notiser på natten - konfigurera vardagar och helger separat</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>🗄️ MongoDB Integration</h6>
+                            <p>Spårar skickade påminnelser för att undvika dubbletter</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <h6>💡 Information:</h6>
+                <ul class="mb-0">
+                    <li>Påminnelser skickas via Home Assistant till din telefon</li>
+                    <li>Stöd för alla vinterolympiska grenar (längdskidor, skidskytte, alpint, mm)</li>
+                    <li>Automatisk kontroll var 10:e minut via schemalagt Windows-jobb</li>
+                    <li>Klicka på "Visa TV-schema" ovan för att se alla kommande event</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

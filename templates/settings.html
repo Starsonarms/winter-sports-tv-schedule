@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Inställningar - Winter Sports TV Schedule{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>⚙️ Inställningar</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Home Assistant</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>URL:</strong> {{ config.home_assistant_url or "(ej konfigurerad)" }}</p>
+                    <p><strong>Service:</strong> {{ config.home_assistant_service }}</p>
+                    <p><strong>Token:</strong> {{ "✅ Konfigurerad" if config.home_assistant_token else "❌ Ej angiven" }}</p>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-primary" onclick="testHA()">Test Anslutning</button>
+                        <button class="btn btn-sm btn-outline-success" onclick="testNotification()">Skicka Testnotis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>MongoDB</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Cluster:</strong> wintersportsreminders.y80xoa0.mongodb.net</p>
+                    <p><strong>Database:</strong> {{ config.mongodb_database }}</p>
+                    <p><strong>URI:</strong> {{ "✅ Konfigurerad" if config.mongodb_uri else "❌ Ej angiven" }}</p>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-primary" onclick="testMongoDB()">Test MongoDB</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🔔 Påminnelseinställningar</h5>
+                </div>
+                <div class="card-body">
+                    <form id="reminderForm" onsubmit="saveReminderSettings(); return false;">
+                        <div class="mb-3">
+                            <label class="form-label">Påminnelseintervall (minuter innan event)</label>
+                            <div class="input-group mb-2">
+                                <input type="number" class="form-control" id="interval1" value="{{ config.reminder_intervals[0] if config.reminder_intervals|length > 0 else 60 }}" min="1" required>
+                                <span class="input-group-text">min</span>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="interval2" value="{{ config.reminder_intervals[1] if config.reminder_intervals|length > 1 else 15 }}" min="1" required>
+                                <span class="input-group-text">min</span>
+                            </div>
+                            <div class="form-text">Exempel: 60 och 15 betyder påminnelser 1 timme och 15 minuter före</div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remindersEnabled" {{ "checked" if config.reminders_enabled else "" }}>
+                            <label class="form-check-label" for="remindersEnabled">
+                                Aktivera påminnelser
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Spara Påminnelseinställningar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🕒 Tidsinställningar för notiser</h5>
+                </div>
+                <div class="card-body">
+                    <form id="timeForm" onsubmit="saveTimeSettings(); return false;">
+                        <h6>Vardagar</h6>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="weekdayStart" class="form-label">Starttid</label>
+                                <input type="number" class="form-control" id="weekdayStart" value="{{ config.weekday_start_hour }}" min="0" max="23" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="weekdayEnd" class="form-label">Sluttid</label>
+                                <input type="number" class="form-control" id="weekdayEnd" value="{{ config.weekday_end_hour }}" min="0" max="23" required>
+                            </div>
+                        </div>
+                        
+                        <h6>Helger</h6>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="weekendStart" class="form-label">Starttid</label>
+                                <input type="number" class="form-control" id="weekendStart" value="{{ config.weekend_start_hour }}" min="0" max="23" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="weekendEnd" class="form-label">Sluttid</label>
+                                <input type="number" class="form-control" id="weekendEnd" value="{{ config.weekend_end_hour }}" min="0" max="23" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-text mb-3">Använd 24-timmarsformat (0-23). Exempel: 8 = 08:00, 23 = 23:00</div>
+                        
+                        <button type="submit" class="btn btn-primary">Spara Tidsinställningar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🏂 Standardgrenar i TV-schema</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Välj vilka grenar som ska visas som standard när du öppnar TV-schemat:</p>
+                    
+                    <form id="sportsForm" onsubmit="saveSportsSettings(); return false;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="cross-country" id="sportCrossCountry" {{ "checked" if "cross-country" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportCrossCountry">
+                                        ⛷️ Längdskidor
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="biathlon" id="sportBiathlon" {{ "checked" if "biathlon" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportBiathlon">
+                                        🎯 Skidskytte
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="alpine" id="sportAlpine" {{ "checked" if "alpine" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportAlpine">
+                                        🎿 Alpint
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="ski-jumping" id="sportSkiJumping" {{ "checked" if "ski-jumping" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportSkiJumping">
+                                        🪂 Backhoppning
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="ice-hockey" id="sportIceHockey" {{ "checked" if "ice-hockey" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportIceHockey">
+                                        🏒 Ishockey
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="figure-skating" id="sportFigureSkating" {{ "checked" if "figure-skating" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportFigureSkating">
+                                        ⛸️ Konståkning
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="speed-skating" id="sportSpeedSkating" {{ "checked" if "speed-skating" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportSpeedSkating">
+                                        ⏱️ Skridsko
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="curling" id="sportCurling" {{ "checked" if "curling" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportCurling">
+                                        🥌 Curling
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="other" id="sportOther" {{ "checked" if "other" in config.default_sports else "" }}>
+                                    <label class="form-check-label" for="sportOther">
+                                        🏆 Övrigt
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-text mb-3">Dessa filter kommer att vara aktiverade när du öppnar TV-schemat. Du kan alltid ändra dem manuellt där.</div>
+                        
+                        <button type="submit" class="btn btn-primary">Spara Grenval</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div id="results"></div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6>💡 Information:</h6>
+                <ul class="mb-0">
+                    <li><strong>Påminnelseintervall:</strong> Hur lång tid innan event du får notiser</li>
+                    <li><strong>Tidsinställningar:</strong> Kontrollerar när notiser kan skickas (inga notiser på natten)</li>
+                    <li><strong>Home Assistant:</strong> Krävs för att skicka notiser till din telefon</li>
+                    <li><strong>MongoDB:</strong> Spårar skickade påminnelser för att undvika dubbletter</li>
+                    <li>Ändringar sparas i <code>.env</code> filen och träder i kraft vid nästa påminnelsekontroll</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function saveReminderSettings() {
+        const interval1 = parseInt(document.getElementById('interval1').value);
+        const interval2 = parseInt(document.getElementById('interval2').value);
+        const enabled = document.getElementById('remindersEnabled').checked;
+        
+        const data = {
+            reminder_intervals: [interval1, interval2],
+            reminders_enabled: enabled
+        };
+        
+        fetch('/api/config/reminders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showResult('success', data.message);
+            } else {
+                showResult('danger', 'Fel: ' + (data.error || 'Kunde inte spara inställningar'));
+            }
+        })
+        .catch(error => {
+            showResult('danger', 'Fel: ' + error);
+        });
+    }
+    
+    function saveTimeSettings() {
+        const weekdayStart = parseInt(document.getElementById('weekdayStart').value);
+        const weekdayEnd = parseInt(document.getElementById('weekdayEnd').value);
+        const weekendStart = parseInt(document.getElementById('weekendStart').value);
+        const weekendEnd = parseInt(document.getElementById('weekendEnd').value);
+        
+        const data = {
+            weekday_start_hour: weekdayStart,
+            weekday_end_hour: weekdayEnd,
+            weekend_start_hour: weekendStart,
+            weekend_end_hour: weekendEnd
+        };
+        
+        fetch('/api/config/time', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showResult('success', data.message);
+            } else {
+                showResult('danger', 'Fel: ' + (data.error || 'Kunde inte spara inställningar'));
+            }
+        })
+        .catch(error => {
+            showResult('danger', 'Fel: ' + error);
+        });
+    }
+    
+    function saveSportsSettings() {
+        // Get all checked sport checkboxes
+        const checkboxes = document.querySelectorAll('#sportsForm input[type="checkbox"]');
+        const selectedSports = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        
+        const data = {
+            default_sports: selectedSports
+        };
+        
+        fetch('/api/config/sports', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showResult('success', data.message + ' Uppdatera TV-schemat för att se ändringarna.');
+            } else {
+                showResult('danger', 'Fel: ' + (data.error || 'Kunde inte spara grenval'));
+            }
+        })
+        .catch(error => {
+            showResult('danger', 'Fel: ' + error);
+        });
+    }
+    
+    function testHA() {
+        showResult('info', 'Testar Home Assistant-anslutning...');
+        
+        fetch('/api/test-ha')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showResult('success', data.message);
+            } else {
+                showResult('danger', 'Fel: ' + (data.error || 'Kunde inte ansluta'));
+            }
+        })
+        .catch(error => {
+            showResult('danger', 'Fel: ' + error);
+        });
+    }
+    
+    function testNotification() {
+        showResult('info', 'Skickar testnotis...');
+        
+        fetch('/api/test-notification')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showResult('success', data.message);
+            } else {
+                showResult('danger', 'Fel: ' + (data.error || 'Kunde inte skicka notis'));
+            }
+        })
+        .catch(error => {
+            showResult('danger', 'Fel: ' + error);
+        });
+    }
+    
+    function testMongoDB() {
+        showResult('info', 'Testar MongoDB-anslutning...');
+        
+        fetch('/api/test-mongodb')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showResult('success', data.message);
+            } else if (data.status === 'warning') {
+                showResult('warning', data.message);
+            } else {
+                showResult('danger', 'Fel: ' + (data.error || 'Kunde inte ansluta'));
+            }
+        })
+        .catch(error => {
+            showResult('warning', 'MongoDB-anslutning misslyckades (valfritt)');
+        });
+    }
+    
+    function showResult(type, message) {
+        document.getElementById('results').innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.querySelector('#results .alert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+        
+        // Scroll to results
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+</script>
+{% endblock %}
