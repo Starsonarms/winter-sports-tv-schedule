@@ -26,9 +26,10 @@ All Winter Olympic sports:
 
 ## Channels Supported
 
-Primarily focuses on free Swedish TV:
-- **SVT1, SVT2** - Main winter sports channels
-- **TV4** - Additional coverage
+Primarily focuses on free Swedish and Norwegian TV:
+- **SVT1, SVT2** - Main Swedish winter sports channels
+- **TV4** - Additional Swedish coverage
+- **NRK1** - Norwegian coverage (langrenn/cross-country skiing)
 
 ## Usage
 
@@ -74,9 +75,9 @@ python fetch_tvnu_simple.py
 ```
 
 This will:
-- Scrape SVT1, SVT2, and TV4 schedules from tv.nu
+- Scrape SVT1, SVT2, TV4, and NRK1 schedules from tv.nu
 - Extract ALL winter sports programs for the next 21 days
-- Automatically categorize by sport type
+- Automatically categorize by sport type (including Norwegian "langrenn")
 - Update `script.js` with verified channels and times
 - No API key required!
 

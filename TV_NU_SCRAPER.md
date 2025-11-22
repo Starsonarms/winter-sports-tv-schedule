@@ -1,6 +1,6 @@
 # TV.nu Scraper
 
-This script automatically fetches **all Winter Olympic sports** schedules from tv.nu for SVT1, SVT2, and TV4.
+This script automatically fetches **all Winter Olympic sports** schedules from tv.nu for SVT1, SVT2, TV4, and NRK1.
 
 ## Usage
 
@@ -11,7 +11,7 @@ python fetch_tvnu_simple.py
 ```
 
 This will:
-1. Check SVT1, SVT2, and TV4 schedules for the next 21 days
+1. Check SVT1, SVT2, TV4, and NRK1 schedules for the next 21 days
 2. Extract ALL winter sports programs (all Olympic sports)
 3. Automatically categorize by sport type
 4. Update `script.js` with verified channel and time information
@@ -42,7 +42,7 @@ The scraper recognizes and categorizes:
 ## Keywords
 
 The scraper looks for these keywords in program titles:
-- **Cross-country**: längdskidor, längd, cross-country
+- **Cross-country**: längdskidor, längd, cross-country, langrenn (Norwegian)
 - **Biathlon**: skidskytte, biathlon
 - **Alpine**: alpint, alpine, slalom, storslalom, super-g, störtlopp, downhill
 - **Ski Jumping**: backhoppning, backhoppare, ski jumping, skidflygning

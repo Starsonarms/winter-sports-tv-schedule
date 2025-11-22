@@ -11,10 +11,10 @@ from urllib.parse import quote
 from html.parser import HTMLParser
 
 # Channels to search
-CHANNELS = ['svt1', 'svt2', 'tv4']
+CHANNELS = ['svt1', 'svt2', 'tv4', 'nrk1']
 
 # Search terms for winter sports
-SEARCH_TERMS = ['längdskidor', 'skidskytte']
+SEARCH_TERMS = ['längdskidor', 'skidskytte', 'langrenn']
 
 class TVNuParser(HTMLParser):
     """Parse tv.nu HTML to extract program information."""

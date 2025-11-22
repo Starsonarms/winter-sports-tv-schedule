@@ -12,7 +12,8 @@ from urllib.request import urlopen, Request
 CHANNELS = {
     'svt1': 'SVT1',
     'svt2': 'SVT2',
-    'tv4': 'TV4'
+    'tv4': 'TV4',
+    'nrk1': 'NRK1'
 }
 
 # Sport category pages on tv.nu
@@ -30,7 +31,7 @@ SPORT_CATEGORIES = [
 # Keywords for winter sports (all Winter Olympic sports)
 WINTER_SPORTS_KEYWORDS = [
     # Cross-country skiing
-    'längdskidor', 'längdsidåkning', 'längd', 'cross-country',
+    'längdskidor', 'längdsidåkning', 'längd', 'cross-country', 'langrenn',
     # Biathlon
     'skidskytte', 'biathlon',
     # Alpine skiing  
@@ -155,7 +156,7 @@ def extract_programs_from_sport_page(html):
         
         # Find channel
         channel = 'TBA'
-        for ch in ['SVT1', 'SVT2', 'SVT24', 'SVT Play', 'TV4', 'Viaplay']:
+        for ch in ['SVT1', 'SVT2', 'SVT24', 'SVT Play', 'TV4', 'NRK1', 'Viaplay']:
             if ch in context:
                 channel = ch
                 break
@@ -317,7 +318,7 @@ def categorize_programs(programs):
             sport = 'other'
         elif any(kw in title_lower for kw in ['bob', 'bobsleigh', 'skeleton', 'rodel', 'luge']):
             sport = 'other'
-        elif any(kw in title_lower for kw in ['längdskidor', 'längdsidåkning', 'längd', 'cross-country']):
+        elif any(kw in title_lower for kw in ['längdskidor', 'längdsidåkning', 'längd', 'cross-country', 'langrenn']):
             sport = 'cross-country'
         else:
             sport = 'other'

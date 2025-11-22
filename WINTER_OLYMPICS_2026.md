@@ -95,7 +95,7 @@ Run regularly to catch:
 
 ### During Olympics (Feb 2026)
 The scraper will automatically find:
-- All Olympic events on SVT1, SVT2, TV4
+- All Olympic events on SVT1, SVT2, TV4, and NRK1
 - Opening & closing ceremonies
 - Medal ceremonies
 - Highlights and replays
